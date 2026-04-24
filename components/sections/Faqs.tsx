@@ -3,7 +3,17 @@
 import { useState } from "react";
 import { ChevronDown, ChevronUp } from "lucide-react";
 
-const faqs = [
+interface FAQItem {
+  q: string;
+  a: string;
+}
+
+interface FAQCategory {
+  category: string;
+  questions: FAQItem[];
+}
+
+const faqs: FAQCategory[] = [
   {
     category: "About the Course",
     questions: [
@@ -33,7 +43,7 @@ const faqs = [
 export default function Faqs() {
   const [openCategories, setOpenCategories] = useState<number[]>([0]);
 
-  // Initializing state as a 2D array of booleans based on the faqs structure
+  // Use a 2D array: openQuestions[categoryIndex][questionIndex]
   const [openQuestions, setOpenQuestions] = useState<boolean[][]>(
     faqs.map((cat) => cat.questions.map(() => false))
   );
@@ -46,14 +56,13 @@ export default function Faqs() {
 
   const toggleQuestion = (categoryIndex: number, questionIndex: number) => {
     setOpenQuestions((prev) => {
-      // Create a deep copy of the 2D array to maintain immutability
-      const newGrid = prev.map((row) => [...row]);
-      
-      // Toggle the specific boolean at the correct coordinates
-      if (newGrid[categoryIndex] !== undefined) {
-        newGrid[categoryIndex][questionIndex] = !newGrid[categoryIndex][questionIndex];
-      }
-      
+      // Create a brand new array structure to trigger a re-render
+      const newGrid = prev.map((row, cIdx) => {
+        if (cIdx === categoryIndex) {
+          return row.map((isOpen, qIdx) => (qIdx === questionIndex ? !isOpen : isOpen));
+        }
+        return [...row];
+      });
       return newGrid;
     });
   };
@@ -70,7 +79,6 @@ export default function Faqs() {
         <div className="space-y-6">
           {faqs.map((faq, categoryIndex) => (
             <div key={categoryIndex} className="bg-white rounded-2xl shadow-lg overflow-hidden">
-              {/* Category Header */}
               <div
                 className="p-8 border-b border-gray-100 cursor-pointer flex justify-between items-center hover:bg-gray-50"
                 onClick={() => toggleCategory(categoryIndex)}
@@ -79,7 +87,6 @@ export default function Faqs() {
                 {openCategories.includes(categoryIndex) ? <ChevronUp /> : <ChevronDown />}
               </div>
 
-              {/* Questions List */}
               {openCategories.includes(categoryIndex) && (
                 <div className="divide-y divide-gray-100">
                   {faq.questions.map((q, questionIndex) => {
@@ -98,7 +105,7 @@ export default function Faqs() {
                         </div>
 
                         {isOpen && (
-                          <div className="px-8 pb-8 text-gray-600 animate-in fade-in slide-in-from-top-1">
+                          <div className="px-8 pb-8 text-gray-600">
                             {q.a}
                           </div>
                         )}
