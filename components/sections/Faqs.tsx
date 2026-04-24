@@ -7,52 +7,25 @@ const faqs = [
   {
     category: "About the Course",
     questions: [
-      {
-        q: "What is the duration of the programs?",
-        a: "Programs range from 6 weeks to 6 months depending on the complexity and depth required for enterprise teams.",
-      },
-      {
-        q: "Are these programs certified?",
-        a: "Yes, all programs come with Accredian Enterprise certification recognized by Fortune 500 companies.",
-      },
-      {
-        q: "What is the format - online or offline?",
-        a: "Flexible hybrid format - live online sessions + optional onsite workshops for teams.",
-      },
+      { q: "What is the duration of the programs?", a: "Programs range from 6 weeks to 6 months..." },
+      { q: "Are these programs certified?", a: "Yes, all programs come with Accredian Enterprise certification." },
+      { q: "What is the format - online or offline?", a: "Flexible hybrid format - live online sessions + optional onsite workshops." },
     ],
   },
   {
     category: "About the Delivery",
     questions: [
-      {
-        q: "How are trainers selected?",
-        a: "Trainers have 10+ years industry experience from FAANG, McKinsey, Deloitte with proven training expertise.",
-      },
-      {
-        q: "What is the batch size?",
-        a: "Maximum 25 participants per batch for personalized attention and interaction.",
-      },
-      {
-        q: "Is there post-training support?",
-        a: "Yes, 6 months implementation support + dedicated relationship manager.",
-      },
+      { q: "How are trainers selected?", a: "Trainers have 10+ years industry experience from FAANG, McKinsey, etc." },
+      { q: "What is the batch size?", a: "Maximum 25 participants per batch." },
+      { q: "Is there post-training support?", a: "Yes, 6 months implementation support." },
     ],
   },
   {
     category: "Miscellaneous",
     questions: [
-      {
-        q: "Can we customize for specific industries?",
-        a: "Yes, 100% customizable. We create industry-specific case studies and frameworks.",
-      },
-      {
-        q: "What is the refund policy?",
-        a: "Full refund within 7 days. Pro-rata after program commencement.",
-      },
-      {
-        q: "How do we measure ROI?",
-        a: "Pre/post skill assessments + 360 feedback + productivity metrics tracking.",
-      },
+      { q: "Can we customize for specific industries?", a: "Yes, 100% customizable." },
+      { q: "What is the refund policy?", a: "Full refund within 7 days." },
+      { q: "How do we measure ROI?", a: "Pre/post skill assessments + 360 feedback." },
     ],
   },
 ];
@@ -60,27 +33,28 @@ const faqs = [
 export default function Faqs() {
   const [openCategories, setOpenCategories] = useState<number[]>([0]);
 
-  // ✅ SAFE STATE (no TS indexing issues)
+  // Initializing state as a 2D array of booleans based on the faqs structure
   const [openQuestions, setOpenQuestions] = useState<boolean[][]>(
     faqs.map((cat) => cat.questions.map(() => false))
   );
 
   const toggleCategory = (index: number) => {
     setOpenCategories((prev) =>
-      prev.includes(index)
-        ? prev.filter((i) => i !== index)
-        : [...prev, index]
+      prev.includes(index) ? prev.filter((i) => i !== index) : [...prev, index]
     );
   };
 
   const toggleQuestion = (categoryIndex: number, questionIndex: number) => {
     setOpenQuestions((prev) => {
-      const copy = prev.map((arr) => [...arr]);
-
-      copy[categoryIndex][questionIndex] =
-        !copy[categoryIndex][questionIndex];
-
-      return copy;
+      // Create a deep copy of the 2D array to maintain immutability
+      const newGrid = prev.map((row) => [...row]);
+      
+      // Toggle the specific boolean at the correct coordinates
+      if (newGrid[categoryIndex] !== undefined) {
+        newGrid[categoryIndex][questionIndex] = !newGrid[categoryIndex][questionIndex];
+      }
+      
+      return newGrid;
     });
   };
 
@@ -95,54 +69,36 @@ export default function Faqs() {
 
         <div className="space-y-6">
           {faqs.map((faq, categoryIndex) => (
-            <div
-              key={categoryIndex}
-              className="bg-white rounded-2xl shadow-lg overflow-hidden"
-            >
-              {/* Category */}
+            <div key={categoryIndex} className="bg-white rounded-2xl shadow-lg overflow-hidden">
+              {/* Category Header */}
               <div
                 className="p-8 border-b border-gray-100 cursor-pointer flex justify-between items-center hover:bg-gray-50"
                 onClick={() => toggleCategory(categoryIndex)}
               >
-                <h3 className="text-2xl font-bold text-gray-900">
-                  {faq.category}
-                </h3>
-
-                {openCategories.includes(categoryIndex) ? (
-                  <ChevronUp />
-                ) : (
-                  <ChevronDown />
-                )}
+                <h3 className="text-2xl font-bold text-gray-900">{faq.category}</h3>
+                {openCategories.includes(categoryIndex) ? <ChevronUp /> : <ChevronDown />}
               </div>
 
-              {/* Questions */}
+              {/* Questions List */}
               {openCategories.includes(categoryIndex) && (
                 <div className="divide-y divide-gray-100">
                   {faq.questions.map((q, questionIndex) => {
-                    const isOpen =
-                      openQuestions[categoryIndex]?.[questionIndex];
+                    const isOpen = openQuestions[categoryIndex]?.[questionIndex];
 
                     return (
                       <div key={questionIndex}>
                         <div
                           className="p-8 cursor-pointer flex justify-between hover:bg-blue-50"
-                          onClick={() =>
-                            toggleQuestion(categoryIndex, questionIndex)
-                          }
+                          onClick={() => toggleQuestion(categoryIndex, questionIndex)}
                         >
-                          <span className="font-semibold text-gray-700">
-                            {q.q}
-                          </span>
-
+                          <span className="font-semibold text-gray-700">{q.q}</span>
                           <ChevronDown
-                            className={`transition-transform ${
-                              isOpen ? "rotate-180" : ""
-                            }`}
+                            className={`transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`}
                           />
                         </div>
 
                         {isOpen && (
-                          <div className="px-8 pb-8 text-gray-600">
+                          <div className="px-8 pb-8 text-gray-600 animate-in fade-in slide-in-from-top-1">
                             {q.a}
                           </div>
                         )}
