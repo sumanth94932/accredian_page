@@ -1,7 +1,9 @@
 "use client";
 
-import { useState } from 'react';
-import { ChevronDown, ChevronUp } from 'lucide-react';
+import { useState } from "react";
+import { ChevronDown, ChevronUp } from "lucide-react";
+
+type OpenQuestionsState = Record<string, boolean>;
 
 const faqs = [
   {
@@ -58,22 +60,23 @@ const faqs = [
 ];
 
 export default function Faqs() {
-  const [openCategories, setOpenCategories] = useState([0]);
-  const [openQuestions, setOpenQuestions] = useState({});
+  const [openCategories, setOpenCategories] = useState<number[]>([0]);
+  const [openQuestions, setOpenQuestions] = useState<OpenQuestionsState>({});
 
   const toggleCategory = (index: number) => {
-    setOpenCategories(prev => 
-      prev.includes(index) 
-        ? prev.filter(i => i !== index)
+    setOpenCategories((prev) =>
+      prev.includes(index)
+        ? prev.filter((i) => i !== index)
         : [...prev, index]
     );
   };
 
   const toggleQuestion = (categoryIndex: number, questionIndex: number) => {
     const key = `${categoryIndex}-${questionIndex}`;
-    setOpenQuestions(prev => ({
+
+    setOpenQuestions((prev) => ({
       ...prev,
-      [key]: !prev[key]
+      [key]: !prev[key],
     }));
   };
 
@@ -85,38 +88,64 @@ export default function Faqs() {
             Frequently Asked Questions
           </h2>
         </div>
+
         <div className="space-y-6">
-  {faqs.map((faq, categoryIndex) => (
-    <div key={categoryIndex} className="bg-white rounded-2xl shadow-lg overflow-hidden">
-      <div 
-        className="p-8 border-b border-gray-100 cursor-pointer flex items-center justify-between group hover:bg-gray-50 transition-all"
-        onClick={() => toggleCategory(categoryIndex as number)}
-      >
-        <h3 className="text-2xl font-bold text-gray-900">{faq.category}</h3>
-        {openCategories.includes(categoryIndex) ? <ChevronUp className="w-6 h-6 text-gray-500" /> : <ChevronDown className="w-6 h-6 text-gray-500" />}
-      </div>
-      {openCategories.includes(categoryIndex) && (
-        <div className="divide-y divide-gray-100">
-          {faq.questions.map((question, questionIndex) => (
-            <div key={questionIndex}>
-              <div 
-                className="p-8 cursor-pointer flex items-center justify-between hover:bg-blue-50 transition-all"
-                onClick={() => toggleQuestion(categoryIndex as number, questionIndex as number)}
+          {faqs.map((faq, categoryIndex) => (
+            <div
+              key={categoryIndex}
+              className="bg-white rounded-2xl shadow-lg overflow-hidden"
+            >
+              <div
+                className="p-8 border-b border-gray-100 cursor-pointer flex items-center justify-between group hover:bg-gray-50 transition-all"
+                onClick={() => toggleCategory(categoryIndex)}
               >
-                <span className="text-lg font-semibold text-gray-700">{question.q}</span>
-                <ChevronDown className={`w-5 h-5 text-gray-400 transition-transform ${openQuestions[`${categoryIndex}-${questionIndex}`] ? 'rotate-180' : ''}`} />
+                <h3 className="text-2xl font-bold text-gray-900">
+                  {faq.category}
+                </h3>
+                {openCategories.includes(categoryIndex) ? (
+                  <ChevronUp className="w-6 h-6 text-gray-500" />
+                ) : (
+                  <ChevronDown className="w-6 h-6 text-gray-500" />
+                )}
               </div>
-              {openQuestions[`${categoryIndex}-${questionIndex}`] && (
-                <div className="p-8 pt-0 pb-12 text-gray-600 leading-relaxed">
-                  {question.a}
+
+              {openCategories.includes(categoryIndex) && (
+                <div className="divide-y divide-gray-100">
+                  {faq.questions.map((question, questionIndex) => {
+                    const key = `${categoryIndex}-${questionIndex}`;
+                    const isOpen = openQuestions[key];
+
+                    return (
+                      <div key={questionIndex}>
+                        <div
+                          className="p-8 cursor-pointer flex items-center justify-between hover:bg-blue-50 transition-all"
+                          onClick={() =>
+                            toggleQuestion(categoryIndex, questionIndex)
+                          }
+                        >
+                          <span className="text-lg font-semibold text-gray-700">
+                            {question.q}
+                          </span>
+
+                          <ChevronDown
+                            className={`w-5 h-5 text-gray-400 transition-transform ${
+                              isOpen ? "rotate-180" : ""
+                            }`}
+                          />
+                        </div>
+
+                        {isOpen && (
+                          <div className="p-8 pt-0 pb-12 text-gray-600 leading-relaxed">
+                            {question.a}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
                 </div>
               )}
             </div>
           ))}
-        </div>
-      )}
-    </div>
-  ))}
         </div>
       </div>
     </section>
