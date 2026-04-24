@@ -3,8 +3,6 @@
 import { useState } from "react";
 import { ChevronDown, ChevronUp } from "lucide-react";
 
-type OpenQuestionsState = Record<string, boolean>;
-
 const faqs = [
   {
     category: "About the Course",
@@ -62,8 +60,9 @@ const faqs = [
 export default function Faqs() {
   const [openCategories, setOpenCategories] = useState<number[]>([0]);
 
-  const [openQuestions, setOpenQuestions] = useState<OpenQuestionsState>(
-    {} as OpenQuestionsState
+  // ✅ SAFE STATE (no TS indexing issues)
+  const [openQuestions, setOpenQuestions] = useState<boolean[][]>(
+    faqs.map((cat) => cat.questions.map(() => false))
   );
 
   const toggleCategory = (index: number) => {
@@ -75,15 +74,13 @@ export default function Faqs() {
   };
 
   const toggleQuestion = (categoryIndex: number, questionIndex: number) => {
-    const key = `${categoryIndex}-${questionIndex}`;
-
     setOpenQuestions((prev) => {
-      const current = prev?.[key] ?? false;
+      const copy = prev.map((arr) => [...arr]);
 
-      return {
-        ...prev,
-        [key]: !current,
-      };
+      copy[categoryIndex][questionIndex] =
+        !copy[categoryIndex][questionIndex];
+
+      return copy;
     });
   };
 
@@ -102,9 +99,9 @@ export default function Faqs() {
               key={categoryIndex}
               className="bg-white rounded-2xl shadow-lg overflow-hidden"
             >
-              {/* Category Header */}
+              {/* Category */}
               <div
-                className="p-8 border-b border-gray-100 cursor-pointer flex items-center justify-between hover:bg-gray-50 transition-all"
+                className="p-8 border-b border-gray-100 cursor-pointer flex justify-between items-center hover:bg-gray-50"
                 onClick={() => toggleCategory(categoryIndex)}
               >
                 <h3 className="text-2xl font-bold text-gray-900">
@@ -112,41 +109,41 @@ export default function Faqs() {
                 </h3>
 
                 {openCategories.includes(categoryIndex) ? (
-                  <ChevronUp className="w-6 h-6 text-gray-500" />
+                  <ChevronUp />
                 ) : (
-                  <ChevronDown className="w-6 h-6 text-gray-500" />
+                  <ChevronDown />
                 )}
               </div>
 
               {/* Questions */}
               {openCategories.includes(categoryIndex) && (
                 <div className="divide-y divide-gray-100">
-                  {faq.questions.map((question, questionIndex) => {
-                    const key = `${categoryIndex}-${questionIndex}`;
-                    const isOpen = openQuestions[key] ?? false;
+                  {faq.questions.map((q, questionIndex) => {
+                    const isOpen =
+                      openQuestions[categoryIndex]?.[questionIndex];
 
                     return (
                       <div key={questionIndex}>
                         <div
-                          className="p-8 cursor-pointer flex items-center justify-between hover:bg-blue-50 transition-all"
+                          className="p-8 cursor-pointer flex justify-between hover:bg-blue-50"
                           onClick={() =>
                             toggleQuestion(categoryIndex, questionIndex)
                           }
                         >
-                          <span className="text-lg font-semibold text-gray-700">
-                            {question.q}
+                          <span className="font-semibold text-gray-700">
+                            {q.q}
                           </span>
 
                           <ChevronDown
-                            className={`w-5 h-5 text-gray-400 transition-transform ${
+                            className={`transition-transform ${
                               isOpen ? "rotate-180" : ""
                             }`}
                           />
                         </div>
 
                         {isOpen && (
-                          <div className="p-8 pt-0 pb-12 text-gray-600 leading-relaxed">
-                            {question.a}
+                          <div className="px-8 pb-8 text-gray-600">
+                            {q.a}
                           </div>
                         )}
                       </div>
