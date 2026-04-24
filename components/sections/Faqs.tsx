@@ -43,7 +43,6 @@ const faqs: FAQCategory[] = [
 export default function Faqs() {
   const [openCategories, setOpenCategories] = useState<number[]>([0]);
 
-  // Use a 2D array: openQuestions[categoryIndex][questionIndex]
   const [openQuestions, setOpenQuestions] = useState<boolean[][]>(
     faqs.map((cat) => cat.questions.map(() => false))
   );
@@ -56,7 +55,6 @@ export default function Faqs() {
 
   const toggleQuestion = (categoryIndex: number, questionIndex: number) => {
     setOpenQuestions((prev) => {
-      // Create a brand new array structure to trigger a re-render
       const newGrid = prev.map((row, cIdx) => {
         if (cIdx === categoryIndex) {
           return row.map((isOpen, qIdx) => (qIdx === questionIndex ? !isOpen : isOpen));
@@ -91,7 +89,6 @@ export default function Faqs() {
                 <div className="divide-y divide-gray-100">
                   {faq.questions.map((q, questionIndex) => {
                     const isOpen = openQuestions[categoryIndex]?.[questionIndex];
-
                     return (
                       <div key={questionIndex}>
                         <div
@@ -103,12 +100,7 @@ export default function Faqs() {
                             className={`transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`}
                           />
                         </div>
-
-                        {isOpen && (
-                          <div className="px-8 pb-8 text-gray-600">
-                            {q.a}
-                          </div>
-                        )}
+                        {isOpen && <div className="px-8 pb-8 text-gray-600">{q.a}</div>}
                       </div>
                     );
                   })}
