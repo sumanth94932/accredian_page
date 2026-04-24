@@ -43,6 +43,7 @@ const faqs: FAQCategory[] = [
 export default function Faqs() {
   const [openCategories, setOpenCategories] = useState<number[]>([0]);
 
+  // Using a 2D array of booleans for type safety
   const [openQuestions, setOpenQuestions] = useState<boolean[][]>(
     faqs.map((cat) => cat.questions.map(() => false))
   );
@@ -55,8 +56,10 @@ export default function Faqs() {
 
   const toggleQuestion = (categoryIndex: number, questionIndex: number) => {
     setOpenQuestions((prev) => {
+      // Create a deep copy of the grid
       const newGrid = prev.map((row, cIdx) => {
         if (cIdx === categoryIndex) {
+          // Toggle only the specific question in the specific category
           return row.map((isOpen, qIdx) => (qIdx === questionIndex ? !isOpen : isOpen));
         }
         return [...row];
@@ -89,6 +92,7 @@ export default function Faqs() {
                 <div className="divide-y divide-gray-100">
                   {faq.questions.map((q, questionIndex) => {
                     const isOpen = openQuestions[categoryIndex]?.[questionIndex];
+
                     return (
                       <div key={questionIndex}>
                         <div
@@ -100,7 +104,12 @@ export default function Faqs() {
                             className={`transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`}
                           />
                         </div>
-                        {isOpen && <div className="px-8 pb-8 text-gray-600">{q.a}</div>}
+
+                        {isOpen && (
+                          <div className="px-8 pb-8 text-gray-600">
+                            {q.a}
+                          </div>
+                        )}
                       </div>
                     );
                   })}
